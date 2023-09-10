@@ -1,11 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { IoReorderThreeOutline } from "react-icons/io5";
 import { BsBell } from "react-icons/bs";
 import { FiEdit, FiLogOut } from "react-icons/fi";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { GlobalContext } from "../../contexts/GlobalContextProvider";
 
 const MainLayout = ({ children }: React.PropsWithChildren) => {
   const { data: sessionData, status } = useSession();
+  const { isWriteModalOpen, setIsWriteModalOpen } = useContext(GlobalContext);
+
   console.log(sessionData);
 
   return (
@@ -25,7 +28,7 @@ const MainLayout = ({ children }: React.PropsWithChildren) => {
             </div>
             <div>
               <button
-                onClick={() => console.log("Write button")}
+                onClick={() => setIsWriteModalOpen(true)}
                 className="flex items-center space-x-3 rounded border border-gray-200 px-4 py-2 transition hover:border-gray-900 hover:text-gray-900"
               >
                 <div>Write</div>

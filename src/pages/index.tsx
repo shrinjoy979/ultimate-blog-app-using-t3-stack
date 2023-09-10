@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import { CiSearch } from "react-icons//ci";
 import { HiChevronDown } from "react-icons/hi";
 import MainLayout from "../layouts/MainLayout";
 import Modal from "../components/Modal";
+import { GlobalContext } from "../contexts/GlobalContextProvider";
 
 const HomePage = () => {
-  const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
+  const { isWriteModalOpen, setIsWriteModalOpen } = useContext(GlobalContext);
 
   return (
     <MainLayout>
@@ -167,7 +168,7 @@ const HomePage = () => {
         isOpen={isWriteModalOpen}
         onClose={() => setIsWriteModalOpen(false)}
       >
-        Hello from write modal
+        <form onSubmit={(e) => e.preventDefault}>Here is our from</form>
       </Modal>
     </MainLayout>
   );
