@@ -1,36 +1,45 @@
 import { useRouter } from "next/router";
 import React from "react";
 import MainLayout from "../layouts/MainLayout";
+import { trpc } from "../utils/trpc";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const PostPage = () => {
   const router = useRouter();
 
-  console.log(router.query);
+  const getPost = trpc.post.getPost.useQuery(
+    {
+      slug: router.query.slug as string,
+    },
+    {
+      enabled: Boolean(router.query.slug),
+    }
+  );
 
   return (
     <MainLayout>
+      {getPost.isLoading && (
+        <div className="flex h-full w-full items-center justify-center space-x-4">
+          <div>
+            <AiOutlineLoading3Quarters className="animate-spin" />
+          </div>
+          <div>Loading...</div>
+        </div>
+      )}
+
       <div className="flex h-full w-full flex-col items-center justify-center p-10">
         <div className="w-full max-w-screen-lg flex-col space-y-6">
-          <div className="h-[60vh] w-full rounded-xl bg-gray-300 shadow-lg"></div>
+          <div className="relative h-[60vh] w-full rounded-xl bg-gray-300 shadow-lg">
+            <div className="absolute flex h-full w-full items-center justify-center">
+              <div className="rounded-xl bg-black bg-opacity-50 p-4 text-3xl text-white">
+                {getPost.data?.title}
+              </div>
+            </div>
+          </div>
           <div className="border-l-4 border-gray-800 pl-6">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt
-            debitis esse, sed sapiente quas facere, recusandae earum similique
-            fugiat cumque distinctio dolor numquam dignissimos tempora.
+            {getPost.data?.description}
           </div>
-          <div>
-            Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero
-            fugit rem doloremque itaque voluptatum! Nulla quam repudiandae
-            dolorum provident, esse ipsa, accusantium fugit omnis repellendus
-            minima voluptates velit quaerat, illum numquam dignissimos iure
-            cupiditate impedit qui quia assumenda maxime doloremque nostrum aut
-            consequuntur? Eos, fugiat modi explicabo placeat sequi dicta fugit
-            officia saepe veniam adipisci accusamus vitae sunt in minus
-            doloribus voluptatum molestias amet deserunt deleniti molestiae
-            laborum ab quos accusantium odit! Provident cupiditate repellat
-            vitae laboriosam. Quibusdam amet inventore saepe. Laboriosam facilis
-            corporis totam culpa amet tempora ex quidem error temporibus, nobis
-            cumque repudiandae aliquid. Adipisci doloremque maxime velit!
-          </div>
+          <div>{getPost.data?.text}</div>
         </div>
       </div>
     </MainLayout>
