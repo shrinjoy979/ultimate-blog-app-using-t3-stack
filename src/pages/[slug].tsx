@@ -3,6 +3,8 @@ import React from "react";
 import MainLayout from "../layouts/MainLayout";
 import { trpc } from "../utils/trpc";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { FcLike } from "react-icons/fc";
+import { BsChat } from "react-icons/bs";
 
 const PostPage = () => {
   const router = useRouter();
@@ -24,6 +26,19 @@ const PostPage = () => {
             <AiOutlineLoading3Quarters className="animate-spin" />
           </div>
           <div>Loading...</div>
+        </div>
+      )}
+
+      {getPost.isSuccess && (
+        <div className="fixed bottom-10 flex w-full items-center justify-center">
+          <div className="group flex items-center justify-center space-x-4 rounded-full border border-gray-400 bg-white px-6 py-3 transition duration-300 hover:border-gray-900">
+            <div className="border-r pr-4 transition duration-300 group-hover:border-gray-900">
+              <FcLike className="text-xl" />
+            </div>
+            <div>
+              <BsChat className="text-base" />
+            </div>
+          </div>
         </div>
       )}
 
