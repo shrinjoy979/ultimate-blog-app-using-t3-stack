@@ -31,11 +31,14 @@ const WriteFormModal = () => {
     resolver: zodResolver(writeFormSchema),
   });
 
+  const postRoute = trpc.useContext().post;
+
   const createPost = trpc.post.createPost.useMutation({
     onSuccess: () => {
       toast.success("Post created successfully");
       setIsWriteModalOpen(false);
       reset();
+      postRoute.getPosts.invalidate();
     },
   });
 
