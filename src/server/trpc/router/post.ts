@@ -2,6 +2,7 @@ import slugify from "slugify";
 import { writeFormSchema } from "../../../components/WriteFormModal";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { z } from "zod";
+import { CommentFormSchema } from "../../../components/CommentSidebar";
 
 export const postRouter = router({
   createPost: protectedProcedure
@@ -12,7 +13,6 @@ export const postRouter = router({
         input: { title, description, text },
       }) => {
         // create a function that checks where that title is already exist ot not
-
         await prisma.post.create({
           data: {
             title,
@@ -141,6 +141,31 @@ export const postRouter = router({
           userId_postId: {
             postId,
             userId: session.user.id,
+          },
+        },
+      });
+    }),
+
+  submitComment: protectedProcedure
+    .input(
+      z.object({
+        text: z.string().min(3),
+        postId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx: { prisma, session }, input: { text, postId } }) => {
+      await prisma.comment.create({
+        data: {
+          text,
+          user: {
+            connect: {
+              id: session.user.id,
+            },
+          },
+          post: {
+            connect: {
+              id: postId,
+            },
           },
         },
       });
