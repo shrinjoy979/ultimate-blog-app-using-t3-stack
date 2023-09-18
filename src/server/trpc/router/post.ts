@@ -36,6 +36,7 @@ export const postRouter = router({
         author: {
           select: {
             name: true,
+            username: true,
             image: true,
           },
         },
