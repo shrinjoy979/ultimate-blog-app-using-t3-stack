@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -7,9 +7,11 @@ import { SlShareAlt } from "react-icons/sl";
 import { BiEdit } from "react-icons/bi";
 import { toast } from "react-hot-toast";
 import Post from "../../components/Post";
+import { useSession } from "next-auth/react";
 
 const UserProfilePage = () => {
   const router = useRouter();
+  const currentUser = useSession();
 
   const userProfile = trpc.user.getUserProfile.useQuery(
     {
@@ -29,6 +31,47 @@ const UserProfilePage = () => {
     }
   );
 
+  const userRoute = trpc.useContext().user;
+
+  const [objectImage, setObjectImage] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+
+  const uploadAvatar = trpc.user.uploadAvatar.useMutation({
+    onSuccess: () => {
+      if (userProfile.data?.username) {
+        userRoute.getUserProfile.invalidate({
+          username: userProfile.data?.username as string,
+        });
+        toast.success("avatar updated!");
+      }
+    },
+  });
+
+  const handleChangeImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+
+      if (file.size > 1.5 * 1000000) {
+        toast.error("Image size should not be greater that 1MB");
+      }
+
+      setObjectImage(URL.createObjectURL(file));
+
+      const fileReader = new FileReader();
+
+      fileReader.readAsDataURL(file);
+
+      fileReader.onloadend = () => {
+        if (fileReader.result && userProfile.data?.username) {
+          uploadAvatar.mutate({
+            imageAsDataUrl: fileReader.result as string,
+            username: userProfile.data?.username,
+          });
+        }
+      };
+    }
+  };
+
   return (
     <MainLayout>
       <div className="flex h-full w-full items-center justify-center">
@@ -36,23 +79,35 @@ const UserProfilePage = () => {
           <div className="flex w-full flex-col rounded-3xl bg-white shadow-md">
             <div className="relative h-44 w-full rounded-t-3xl bg-gradient-to-r from-rose-100 to-teal-100">
               <div className="absolute -bottom-10 left-12">
-                <div className="group relative h-28 w-28 cursor-pointer rounded-full border-2 border-white bg-gray-100">
-                  <label
-                    htmlFor="avatarFile"
-                    className="absolute z-10 flex h-full w-full cursor-pointer items-center justify-center rounded-full transition group-hover:bg-black/40"
-                  >
-                    <BiEdit className="hidden text-3xl text-white group-hover:block" />
-                    <input
-                      type="file"
-                      name="avatarFile"
-                      id="avatarFile"
-                      className="sr-only"
-                      accept="image/*"
-                    />
-                  </label>
-                  {userProfile.data?.image && (
+                <div className="group relative h-28 w-28 rounded-full border-2 border-white bg-gray-100">
+                  {currentUser.data?.user?.id === userProfile.data?.id && (
+                    <label
+                      htmlFor="avatarFile"
+                      className="absolute z-10 flex h-full w-full cursor-pointer items-center justify-center rounded-full transition group-hover:bg-black/40"
+                    >
+                      <BiEdit className="hidden text-3xl text-white group-hover:block" />
+                      <input
+                        type="file"
+                        name="avatarFile"
+                        id="avatarFile"
+                        className="sr-only"
+                        accept="image/*"
+                        onChange={handleChangeImage}
+                        multiple={false}
+                      />
+                    </label>
+                  )}
+                  {!objectImage && userProfile.data?.image && (
                     <Image
                       src={userProfile.data?.image}
+                      alt={userProfile.data?.name ?? ""}
+                      fill
+                      className="rounded-full"
+                    />
+                  )}
+                  {objectImage && (
+                    <Image
+                      src={objectImage}
                       alt={userProfile.data?.name ?? ""}
                       fill
                       className="rounded-full"
