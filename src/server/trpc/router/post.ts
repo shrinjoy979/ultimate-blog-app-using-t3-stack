@@ -5,11 +5,23 @@ import { z } from "zod";
 
 export const postRouter = router({
   createPost: protectedProcedure
-    .input(writeFormSchema)
+    .input(
+      writeFormSchema.and(
+        z.object({
+          tagsIds: z
+            .array(
+              z.object({
+                id: z.string(),
+              })
+            )
+            .optional(),
+        })
+      )
+    )
     .mutation(
       async ({
         ctx: { prisma, session },
-        input: { title, description, text },
+        input: { title, description, text, tagsIds },
       }) => {
         // create a function that checks where that title is already exist ot not
         await prisma.post.create({
@@ -18,7 +30,14 @@ export const postRouter = router({
             description,
             text,
             slug: slugify(title),
-            authorId: session.user.id,
+            author: {
+              connect: {
+                id: session.user.id,
+              },
+            },
+            tags: {
+              connect: tagsIds,
+            },
           },
         });
       }
@@ -47,7 +66,16 @@ export const postRouter = router({
               },
             }
           : false,
+
+        tags: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
+      take: 10,
     });
 
     return posts;

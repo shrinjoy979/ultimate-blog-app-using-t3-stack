@@ -28,4 +28,8 @@ export const tagRouter = router({
         },
       });
     }),
+
+  getTags: protectedProcedure.query(async ({ ctx: { prisma } }) => {
+    return await prisma.tag.findMany();
+  }),
 });
