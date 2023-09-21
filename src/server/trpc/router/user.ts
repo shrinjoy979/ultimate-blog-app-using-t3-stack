@@ -15,7 +15,7 @@ export const userRouter = router({
         username: z.string(),
       })
     )
-    .query(async ({ ctx: { prisma }, input: { username } }) => {
+    .query(async ({ ctx: { prisma, session }, input: { username } }) => {
       return await prisma.user.findFirst({
         where: {
           username: username,
@@ -32,6 +32,13 @@ export const userRouter = router({
               followings: true,
             },
           },
+          followedBy: session?.user?.id
+            ? {
+                where: {
+                  id: session.user.id,
+                },
+              }
+            : false,
         },
       });
     }),
