@@ -2,6 +2,7 @@ import slugify from "slugify";
 import { writeFormSchema } from "../../../components/WriteFormModal";
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const postRouter = router({
   createPost: protectedProcedure
@@ -43,6 +44,41 @@ export const postRouter = router({
       }
     ),
 
+  updatePostFeaturedImage: protectedProcedure
+    .input(
+      z.object({
+        imageUrl: z.string().url(),
+        postId: z.string(),
+      })
+    )
+    .mutation(
+      async ({ ctx: { prisma, session }, input: { imageUrl, postId } }) => {
+        // we have to check if the user is owner of the given post
+
+        const postData = await prisma.post.findUnique({
+          where: {
+            id: postId,
+          },
+        });
+
+        if (postData?.authorId !== session.user.id) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "you are not owner of this post",
+          });
+        }
+
+        await prisma.post.update({
+          where: {
+            id: postId,
+          },
+          data: {
+            featuredImage: imageUrl,
+          },
+        });
+      }
+    ),
+
   getPosts: publicProcedure.query(async ({ ctx: { prisma, session } }) => {
     const posts = await prisma.post.findMany({
       orderBy: { createdAt: "desc" },
@@ -74,6 +110,7 @@ export const postRouter = router({
             slug: true,
           },
         },
+        featuredImage: true,
       },
       take: 10,
     });
@@ -104,6 +141,9 @@ export const postRouter = router({
                 },
               }
             : false,
+          authorId: true,
+          slug: true,
+          featuredImage: true,
         },
       });
 
