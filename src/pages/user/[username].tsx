@@ -124,6 +124,18 @@ const UserProfilePage = () => {
               <div className="text-gray-600">
                 {userProfile.data?._count?.posts ?? 0} Posts
               </div>
+              <div className="flex items-center space-x-4 text-gray-700">
+                <div>
+                  <span className="text-gray-900">
+                    {userProfile.data?._count.followedBy} Followers
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-900">
+                    {userProfile.data?._count.followings} Followings
+                  </span>
+                </div>
+              </div>
               <div>
                 <button
                   onClick={() => {
