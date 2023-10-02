@@ -7,6 +7,7 @@ import Post from "../Post";
 
 const MainSection = () => {
   const getPosts = trpc.post.getPosts.useQuery();
+  const getTags = trpc.tag.getTags.useQuery();
 
   return (
     <main className="col-span-8 h-full w-full border-r border-gray-300 px-24">
@@ -30,11 +31,18 @@ const MainSection = () => {
           <div className="flex w-full items-center justify-end space-x-4">
             <div>My topics:</div>
             <div className="flex items-center space-x-2">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-3xl bg-gray-200/50 px-4 py-3">
-                  tag {i}
-                </div>
-              ))}
+              {getTags.isSuccess &&
+                getTags.data.map(
+                  (tag, index) =>
+                    index < 3 && (
+                      <div
+                        key={tag.id}
+                        className="rounded-3xl bg-gray-200/50 px-4 py-3"
+                      >
+                        {tag.name}
+                      </div>
+                    )
+                )}
             </div>
           </div>
         </div>
