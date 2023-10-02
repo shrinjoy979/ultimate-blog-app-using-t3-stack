@@ -30,7 +30,16 @@ const SideSection = () => {
                 key={user.id}
                 className="flex flex-row items-center space-x-5"
               >
-                <div className="h-10 w-10 flex-none rounded-full bg-gray-300"></div>
+                <div className="relative h-10 w-10 flex-none rounded-full bg-gray-300">
+                  {user.image && (
+                    <Image
+                      src={user.image}
+                      fill
+                      alt={user.name ?? ""}
+                      className="rounded-full"
+                    />
+                  )}
+                </div>
                 <div>
                   <div className="text-sm font-bold text-gray-900">
                     {user.name}
