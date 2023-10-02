@@ -3,6 +3,7 @@ import dayjs from "dayjs";
 import { trpc } from "../../utils/trpc";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 const SideSection = () => {
   const readingList = trpc.post.getReadingList.useQuery();
@@ -62,14 +63,32 @@ const SideSection = () => {
                 key={bookmark.id}
                 className="group flex items-center space-x-6"
               >
-                <div className="aspect-square h-full w-2/5 rounded-xl bg-gray-300"></div>
+                <div className="relative aspect-square h-full w-2/5 rounded-xl bg-gray-300">
+                  {bookmark.post.featuredImage && (
+                    <Image
+                      src={bookmark.post.featuredImage}
+                      alt={bookmark.post.title}
+                      fill
+                      className="rounded-xl"
+                    />
+                  )}
+                </div>
                 <div className="flex w-3/5 flex-col space-y-2">
                   <div className="text-lg font-semibold decoration-indigo-600 group-hover:underline">
                     {bookmark.post.title}
                   </div>
                   <div className="truncate">{bookmark.post.description}</div>
                   <div className="flex w-full items-center space-x-4">
-                    <div className="h-8 w-8 rounded-full bg-gray-300"></div>
+                    <div className="relative h-8 w-8 rounded-full bg-gray-300">
+                      {bookmark.post.author.image && (
+                        <Image
+                          src={bookmark.post.author.image}
+                          fill
+                          alt={bookmark.post.author.name ?? ""}
+                          className="rounded-full"
+                        />
+                      )}
+                    </div>
                     <div>{bookmark.post.author.name} &#x2022; </div>
                     <div>
                       {dayjs(bookmark.post.createdAt).format("DD/MM/YYYY")}

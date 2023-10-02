@@ -285,6 +285,7 @@ export const postRouter = router({
             select: {
               title: true,
               slug: true,
+              featuredImage: true,
               description: true,
               createdAt: true,
               author: {
